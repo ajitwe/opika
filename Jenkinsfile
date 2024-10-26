@@ -18,8 +18,10 @@ pipeline {
                 script {
                     // Change the working directory to 'app'
                     dir('app') {
-                        // Specify path to Dockerfile within 'app' directory
+                        // Build the Docker image and assign it to dockerImage variable
                         def dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}", "-f Dockerfile .")
+                        // Store the dockerImage in a global variable for later use
+                        env.DOCKER_IMAGE = dockerImage
                     }
                 }
             }
@@ -29,7 +31,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
+                        sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
                     }
                 }
             }
