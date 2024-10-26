@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_REPO = 'your-dockerhub-username/your-repo-name' // e.g., 'myusername/myapp'
+        DOCKERHUB_REPO = 'ajitsingh25/opika' // e.g., 'myusername/myapp'
         IMAGE_TAG = "${env.BUILD_NUMBER}" // or use 'latest' for testing
     }
 
