@@ -145,7 +145,7 @@ module "eks_blueprints_addons" {
 
   eks_addons = {
     aws-ebs-csi-driver = {
-      most_recent              = true
+      most_recent = true
       # addon_version            = "v1.29.1-eksbuild.1"
       service_account_role_arn = module.ebs_csi_driver_irsa.iam_role_arn
     }

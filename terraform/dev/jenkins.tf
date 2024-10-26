@@ -14,14 +14,14 @@ data "aws_ami" "amazon_linux" {
 # Import the existing SSH key pair
 resource "aws_key_pair" "jenkins_key" {
   key_name   = "jenkins-key"
-  public_key = file("~/.ssh/my-jenkins-key.pub")  # Path to your SSH public key
+  public_key = file("~/.ssh/my-jenkins-key.pub") # Path to your SSH public key
 }
 
 # Security Group for Jenkins (allow HTTP and SSH)
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-sg"
   description = "Allow HTTP and SSH for Jenkins"
-  vpc_id      = module.vpc.vpc_id  # Make sure this references the VPC of your EKS cluster
+  vpc_id      = module.vpc.vpc_id # Make sure this references the VPC of your EKS cluster
 
   ingress {
     description = "Allow SSH"
@@ -51,10 +51,10 @@ resource "aws_security_group" "jenkins_sg" {
 resource "aws_instance" "jenkins_instance" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = "t3.micro"
-  subnet_id              = module.vpc.public_subnets[0]  # Public subnet from your VPC module
+  subnet_id              = module.vpc.public_subnets[0] # Public subnet from your VPC module
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
 
-  key_name = aws_key_pair.jenkins_key.key_name  # Add the SSH key pair
+  key_name = aws_key_pair.jenkins_key.key_name # Add the SSH key pair
 
   # Associate a public IP address with the instance
   associate_public_ip_address = true
@@ -66,12 +66,15 @@ resource "aws_instance" "jenkins_instance" {
               amazon-linux-extras install java-openjdk11 -y
               wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat-stable/jenkins.repo
               rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-              yum install jenkins git docker -y
+              yum install jenkins git docker unzip curl -y
               systemctl start jenkins
               systemctl enable jenkins
               systemctl start docker
               systemctl enable docker
               usermod -aG docker jenkins
+              curl -LO https://releases.hashicorp.com/terraform/1.5.6/terraform_1.5.6_linux_amd64.zip
+              unzip terraform_1.5.6_linux_amd64.zip
+              mv terraform /usr/local/sbin/
               EOF
 
   tags = {
