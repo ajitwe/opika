@@ -149,14 +149,14 @@ module "eks_blueprints_addons" {
       # addon_version            = "v1.29.1-eksbuild.1"
       service_account_role_arn = module.ebs_csi_driver_irsa.iam_role_arn
     }
-    coredns = {
-      most_recent = true
-      # addon_version = "v1.11.1-eksbuild.6"
-      timeouts = {
-        create = "25m"
-        delete = "10m"
-      }
-    }
+    # coredns = {
+    #   most_recent = true
+    #   # addon_version = "v1.11.1-eksbuild.6"
+    #   timeouts = {
+    #     create = "25m"
+    #     delete = "10m"
+    #   }
+    # }
     vpc-cni = {
       most_recent = true
       # addon_version = "v1.18.0-eksbuild.1"
