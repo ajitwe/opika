@@ -69,6 +69,8 @@ resource "aws_instance" "jenkins_instance" {
               yum install jenkins git docker -y
               systemctl start jenkins
               systemctl enable jenkins
+              systemctl start docker
+              systemctl enable docker
               EOF
 
   tags = {
