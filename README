@@ -1,0 +1,5 @@
+scrapy startproject myproject
+
+docker build -t my-scrapy-image . 
+docker run -e TARGET_URL="http://quotes.toscrape.com" -v $(pwd)/data:/data my-scrapy-image
+

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany  # Multiple pods can write to the same volume
+  storageClassName: "efs-sc"
+  resources:
+    requests:
+      storage: 5Gi
