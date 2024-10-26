@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_REPO = 'ajitsingh25/opika' // e.g., 'myusername/myapp'
-        IMAGE_TAG = "${env.BUILD_NUMBER}" // or use 'latest' for testing
+        DOCKERHUB_REPO = 'ajitsingh25/opika'  // e.g., 'ajitsingh25/opika'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"  // Use build number or 'latest' for testing
     }
 
     stages {
@@ -18,10 +18,10 @@ pipeline {
                 script {
                     // Change the working directory to 'app'
                     dir('app') {
-                        // Build the Docker image and assign it to dockerImage variable
+                        // Build the Docker image
                         def dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}", "-f Dockerfile .")
-                        // Store the dockerImage in a global variable for later use
-                        env.DOCKER_IMAGE = dockerImage
+                        // Store the image name in the environment for later use
+                        env.DOCKER_IMAGE = "${DOCKERHUB_REPO}:${IMAGE_TAG}"
                     }
                 }
             }
@@ -40,8 +40,11 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    dockerImage.push("${IMAGE_TAG}")
-                    dockerImage.push("latest")  // Optional: Push a "latest" tag for easy access
+                    // Use the stored docker image reference for pushing
+                    sh "docker push ${env.DOCKER_IMAGE}"
+                    // Optionally push the 'latest' tag as well
+                    sh "docker tag ${env.DOCKER_IMAGE} ${DOCKERHUB_REPO}:latest"
+                    sh "docker push ${DOCKERHUB_REPO}:latest"
                 }
             }
         }
