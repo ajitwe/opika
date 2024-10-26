@@ -16,8 +16,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh cd app
                     // Specify the app directory path to locate the Dockerfile
-                    dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}", "-f app/Dockerfile .")
+                    dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}", "-f Dockerfile .")
                 }
             }
         }

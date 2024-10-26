@@ -71,6 +71,7 @@ resource "aws_instance" "jenkins_instance" {
               systemctl enable jenkins
               systemctl start docker
               systemctl enable docker
+              usermod -aG docker jenkins
               EOF
 
   tags = {
