@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_CREDENTIALS = 'aws-credentials' 
-        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_DEFAULT_REGION = 'eu-central-1'
     }
 
     stages {
