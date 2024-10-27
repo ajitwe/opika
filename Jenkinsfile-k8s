@@ -42,10 +42,8 @@ pipeline {
             steps {
                 script {
                     // Assuming your manifests are in a 'manifests' directory
-                    def manifestFiles = findFiles(glob: 'manifests/**/*.yaml')
-                    manifestFiles.each { file ->
-                        sh "kubectl apply -f ${file}"
-                    }
+                    def manifestPath = 'manifests/*.yaml' // Adjust as needed
+                    sh "kubectl apply -f ${manifestPath}"
                 }
             }
         }
