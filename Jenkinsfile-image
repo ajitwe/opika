@@ -38,6 +38,10 @@ pipeline {
                     try {
                         // Run pytest inside the container
                         sh "docker exec ${containerId} pytest tests/"
+
+                    } catch (Exception e) {
+                        // If pytest fails, print an error message
+                        error "Tests failed, failing the build."
                     } finally {
                         // Cleanup: Stop and remove the container after the tests
                         sh "docker stop ${containerId}"
@@ -46,6 +50,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Login to Docker Hub') {
             steps {
