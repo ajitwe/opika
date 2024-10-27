@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scrapy-deployment
+  labels:
+    app: scrapy
+spec:
+  replicas: 1  # Initial number of replicas
+  selector:
+    matchLabels:
+      app: scrapy
+  template:
+    metadata:
+      labels:
+        app: scrapy
+    spec:
+      containers:
+      - name: scrapy-container
+        image: ajitsingh25/opika:latest  # Replace with your Scrapy Docker image
+        command: ["/bin/sh", "-c"]
+        args: ["scrapy crawl myspider -o /mnt/efs/output.csv -a url=http://quotes.toscrape.com"]
+        resources:
+          requests:
+            memory: "256Mi"  # Minimum memory required
+            cpu: "100m"      # Minimum CPU required (100 millicores = 0.1 vCPU)
+          limits:
+            memory: "512Mi"  # Maximum memory allowed
+            cpu: "500m"      # Maximum CPU allowed (500 millicores = 0.5 vCPU)
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scrapy-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: scrapy-deployment  # Update to match the name of your Deployment
+  minReplicas: 1  # Minimum number of pods
+  maxReplicas: 3  # Maximum number of pods
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50  # Target 50% CPU utilization
