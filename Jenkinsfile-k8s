@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'eu-central-1' // Set your AWS region
+        CLUSTER_NAME = 'dev-opika-eu-central-1' // Set your EKS cluster name
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm // Checkout your Git repository
+            }
+        }
+
+        stage('Configure AWS Credentials') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    script {
+                        sh 'aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID'
+                        sh 'aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY'
+                        sh 'aws configure set region $AWS_REGION'
+                    }
+                }
+            }
+        }
+
+        stage('Update kubeconfig') {
+            steps {
+                script {
+                    // Update kubeconfig for EKS cluster
+                    sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME}"
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    // Assuming your manifests are in a 'manifests' directory
+                    def manifestFiles = findFiles(glob: 'manifests/**/*.yaml')
+                    manifestFiles.each { file ->
+                        sh "kubectl apply -f ${file}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Deployment complete!'
+        }
+    }
+}
