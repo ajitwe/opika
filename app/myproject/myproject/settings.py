@@ -119,3 +119,4 @@ DOWNLOADER_MIDDLEWARES.update({
 # Suppress warnings about unsupported user agents
 # LOG_LEVEL = 'ERROR'
 
+TELNETCONSOLE_ENABLED = False

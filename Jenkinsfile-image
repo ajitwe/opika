@@ -28,6 +28,18 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            steps {
+                script {
+                    // Use the stored docker image reference for testing
+                    docker.image("${DOCKER_IMAGE}").inside {
+                        // Add PYTHONPATH=/app to ensure the Scrapy project is recognized
+                        sh "PYTHONPATH=/app pytest tests/"
+                    }
+                }
+            }
+        }
+
         stage('Login to Docker Hub') {
             steps {
                 script {

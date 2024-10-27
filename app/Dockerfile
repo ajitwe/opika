@@ -19,17 +19,16 @@ RUN apt-get update && apt-get install -y \
 # Copy the requirements file into the container
 COPY requirements.txt /app/
 
-# Install Scrapy using pip
-# RUN pip install --upgrade pip && pip install scrapy scrapy-user-agents scrapy-proxy-pool scrapy-splash
-
 # Install dependencies from requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the local Scrapy project into the container
+# Copy the local Scrapy project and Flask API into the container
 COPY . /app
 
-# Set an environment variable for dynamic URL input
-ENV TARGET_URL=""
+ENV PYTHONPATH=/app
 
-# Run Scrapy from the project folder where scrapy.cfg exists
-CMD ["sh", "-c", "cd myproject && scrapy crawl myspider -a url=$TARGET_URL -o /data/output.csv"]
+# Expose the Flask port
+EXPOSE 5000
+
+# Start the Flask server when the container starts
+CMD ["python", "app.py"]
