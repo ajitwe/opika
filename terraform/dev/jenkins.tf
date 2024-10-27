@@ -1,102 +1,119 @@
+# # Data source to get the latest Amazon Linux 2 AMI
+# data "aws_ami" "amazon_linux" {
+#   most_recent = true
+#   owners      = ["amazon"]
 
+#   filter {
+#     name   = "name"
+#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+#   }
+# }
 
-# Data source to get the latest Amazon Linux 2 AMI
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["amazon"]
+# # Creating a New Key
+# resource "tls_private_key" "key" {
+#   algorithm = "RSA"
+#   rsa_bits  = 4096
+# }
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
+# resource "local_sensitive_file" "private_key" {
+#   filename        = "/Users/ajitsingh/${local.name}.pem"
+#   content         = tls_private_key.key.private_key_pem
+#   file_permission = "0400"
 
-# Import the existing SSH key pair
-resource "aws_key_pair" "jenkins_key" {
-  key_name   = "jenkins-key"
-  public_key = file("~/.ssh/my-jenkins-key.pub") # Path to your SSH public key
-}
+#   # Ignore any future changes to this resource
+#   lifecycle {
+#     ignore_changes = all
+#   }
+# }
 
-# Security Group for Jenkins (allow HTTP and SSH)
-resource "aws_security_group" "jenkins_sg" {
-  name        = "jenkins-sg"
-  description = "Allow HTTP and SSH for Jenkins"
-  vpc_id      = module.vpc.vpc_id # Make sure this references the VPC of your EKS cluster
+# module "ops_key_pair" {
+#   source  = "terraform-aws-modules/key-pair/aws"
+#   version = "1.0.1"
 
-  ingress {
-    description = "Allow SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   key_name   = local.name
+#   public_key = tls_private_key.key.public_key_openssh
+# }
 
-  ingress {
-    description = "Allow HTTP"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# # Security Group for Jenkins (allow HTTP and SSH)
+# resource "aws_security_group" "jenkins_sg" {
+#   name        = "jenkins-sg"
+#   description = "Allow HTTP and SSH for Jenkins"
+#   vpc_id      = module.vpc.vpc_id # Make sure this references the VPC of your EKS cluster
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+#   ingress {
+#     description = "Allow SSH"
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-# EC2 instance for Jenkins
-resource "aws_instance" "jenkins_instance" {
-  ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = "t3.micro"
-  subnet_id              = module.vpc.public_subnets[0] # Public subnet from your VPC module
-  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+#   ingress {
+#     description = "Allow HTTP"
+#     from_port   = 8080
+#     to_port     = 8080
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  key_name = aws_key_pair.jenkins_key.key_name # Add the SSH key pair
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
 
-  # Associate a public IP address with the instance
-  associate_public_ip_address = true
+# # EC2 instance for Jenkins
+# resource "aws_instance" "jenkins_instance" {
+#   ami                    = data.aws_ami.amazon_linux.id
+#   instance_type          = "t3.small"
+#   subnet_id              = module.vpc.public_subnets[0] # Public subnet from your VPC module
+#   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
 
-  # Jenkins installation using User Data
-  user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
-              amazon-linux-extras install java-openjdk11 -y
-              wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat-stable/jenkins.repo
-              rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-              yum install jenkins git docker unzip curl -y
-              systemctl start jenkins
-              systemctl enable jenkins
-              systemctl start docker
-              systemctl enable docker
-              usermod -aG docker jenkins
-              curl -LO https://releases.hashicorp.com/terraform/1.5.6/terraform_1.5.6_linux_amd64.zip
-              unzip terraform_1.5.6_linux_amd64.zip
-              mv terraform /usr/local/sbin/
-              chown jenkins:jenkins /usr/local/sbin/terraform
-              EOF
+#   key_name = module.ops_key_pair.key_pair_key_name
 
-  tags = {
-    Name = "Jenkins-EC2"
-  }
+#   # Associate a public IP address with the instance
+#   associate_public_ip_address = true
 
-  # Add an EBS volume
-  root_block_device {
-    volume_size = 20
-    volume_type = "gp2"
-  }
+#   # Jenkins installation using User Data
+#   user_data = <<-EOF
+#               #!/bin/bash
+#               yum update -y
+#               amazon-linux-extras install java-openjdk11 -y
+#               wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat-stable/jenkins.repo
+#               rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+#               yum install jenkins git docker unzip curl -y
+#               systemctl start jenkins
+#               systemctl enable jenkins
+#               systemctl start docker
+#               systemctl enable docker
+#               usermod -aG docker jenkins
+#               curl -LO https://releases.hashicorp.com/terraform/1.5.6/terraform_1.5.6_linux_amd64.zip
+#               unzip terraform_1.5.6_linux_amd64.zip
+#               mv terraform /usr/local/sbin/
+#               chown jenkins:jenkins /usr/local/sbin/terraform
+#               EOF
 
-  # Adding a secondary EBS volume
-  ebs_block_device {
-    device_name = "/dev/sdb"
-    volume_size = 10
-    volume_type = "gp2"
-  }
-}
+#   tags = {
+#     Name = "Jenkins"
+#   }
 
-# Output Jenkins instance public IP for convenience
-output "jenkins_public_ip" {
-  value = aws_instance.jenkins_instance.public_ip
-}
+#   # Add an EBS volume
+#   root_block_device {
+#     volume_size = 20
+#     volume_type = "gp3"
+#   }
+
+#   # Adding a secondary EBS volume
+#   ebs_block_device {
+#     device_name = "/dev/sdb"
+#     volume_size = 20
+#     volume_type = "gp3"
+#   }
+# }
+
+# # Output Jenkins instance public IP for convenience
+# output "jenkins_public_ip" {
+#   value = aws_instance.jenkins_instance.public_ip
+# }

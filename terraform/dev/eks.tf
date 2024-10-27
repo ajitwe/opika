@@ -144,11 +144,11 @@ module "eks_blueprints_addons" {
   oidc_provider_arn = module.eks.oidc_provider_arn
 
   eks_addons = {
-    aws-ebs-csi-driver = {
-      most_recent = true
-      # addon_version            = "v1.29.1-eksbuild.1"
-      service_account_role_arn = module.ebs_csi_driver_irsa.iam_role_arn
-    }
+    # aws-ebs-csi-driver = {
+    #   most_recent = true
+    #   # addon_version            = "v1.29.1-eksbuild.1"
+    #   service_account_role_arn = module.ebs_csi_driver_irsa.iam_role_arn
+    # }
     # coredns = {
     #   most_recent = true
     #   # addon_version = "v1.11.1-eksbuild.6"
