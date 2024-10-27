@@ -46,6 +46,11 @@ def handle_results(item, response, spider):
 def handle_spider_error(failure: Failure):
     logging.error(f"Spider encountered an error: {failure.getTraceback()}")
 
+# Health check endpoint for readiness and liveness probes
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 # API endpoint to start scraping
 @app.route('/scrape', methods=['POST'])
 def scrape():

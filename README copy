@@ -1,0 +1,14 @@
+scrapy startproject myproject
+
+docker build -t my-scrapy-image . 
+docker run -e TARGET_URL="http://quotes.toscrape.com" -v $(pwd)/data:/data my-scrapy-image
+
+
+docker build -t my-flask-scrapy-app .
+docker run -p 5001:5000 my-flask-scrapy-app 
+curl -X POST http://127.0.0.1:5001/scrape -H "Content-Type: application/json" -d '{"urls": ["http://quotes.toscrape.com"]}'
+curl http://127.0.0.1:5001/results
+
+
+curl -X POST http://192.168.49.2:30000/scrape -H "Content-Type: application/json" -d '{"urls": ["http://quotes.toscrape.com"]}'
+curl http://192.168.49.2:30000/results

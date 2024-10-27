@@ -1,47 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: scrapy-deployment
+  name: opika-deployment
   labels:
-    app: scrapy
+    app: opika
 spec:
-  replicas: 1  # Initial number of replicas
+  # replicas: 1
   selector:
     matchLabels:
-      app: scrapy
+      app: opika
   template:
     metadata:
       labels:
-        app: scrapy
+        app: opika
     spec:
       containers:
-      - name: scrapy-container
-        image: ajitsingh25/opika:latest  # Replace with your Scrapy Docker image
-        command: ["/bin/sh", "-c"]
-        args: ["scrapy crawl myspider -o /mnt/efs/output.csv -a url=http://quotes.toscrape.com"]
+      - name: opika
+        image: docker.io/ajitsingh25/opika:latest # Specify the appropriate tag if needed
+        ports:
+        - containerPort: 5000  # Change this if your app uses a different port
         resources:
           requests:
-            memory: "256Mi"  # Minimum memory required
-            cpu: "100m"      # Minimum CPU required (100 millicores = 0.1 vCPU)
+            cpu: "500m"  # Request 500 milliCPU
+            memory: "256Mi"  # Request 256 MiB of memory
           limits:
-            memory: "512Mi"  # Maximum memory allowed
-            cpu: "500m"      # Maximum CPU allowed (500 millicores = 0.5 vCPU)
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: scrapy-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: scrapy-deployment  # Update to match the name of your Deployment
-  minReplicas: 1  # Minimum number of pods
-  maxReplicas: 3  # Maximum number of pods
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 50  # Target 50% CPU utilization
+            cpu: "1"  # Limit to 1 CPU
+            memory: "512Mi"  # Limit to 512 MiB of memory
+        # Add readiness and liveness probes
+        readinessProbe:
+          httpGet:
+            path: /scrape         # The health check path
+            port: 5000            # The port your application listens on
+          initialDelaySeconds: 5  # Delay before starting health checks
+          periodSeconds: 10        # Frequency of health checks
+          failureThreshold: 3      # Number of failed checks before marking as unavailable
+          
+        livenessProbe:
+          httpGet:
+            path: /scrape         # The health check path
+            port: 5000            # The port your application listens on
+          initialDelaySeconds: 15 # Delay before starting liveness checks
+          periodSeconds: 20       # Frequency of liveness checks
+          failureThreshold: 3     # Number of failed checks before restarting the container
