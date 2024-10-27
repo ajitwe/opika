@@ -33,9 +33,12 @@ pipeline {
             steps {
                 script {
                     // Use the stored docker image reference for testing
-                    docker.image("${DOCKER_IMAGE}").inside {
-                        // Add PYTHONPATH=/app to ensure the Scrapy project is recognized
-                        sh "pytest tests/"
+                    docker.image("${DOCKER_IMAGE}").inside("--volume /var/jenkins_home/workspace/image:/var/jenkins_home/workspace/image") {
+                        // Change to the app directory and list its contents for verification
+                        dir('/var/jenkins_home/workspace/image/app') {
+                            sh "ls -la" // List the contents of the app directory
+                            sh "pytest tests/"
+                        }
                     }
                 }
             }
