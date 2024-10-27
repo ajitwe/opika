@@ -32,14 +32,16 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Use the stored docker image reference for testing
-                    docker.image("${DOCKER_IMAGE}").inside {
-                        // Add PYTHONPATH=/app to ensure the Scrapy project is recognized
-                        sh "ls -la"
-                        sh "cd app"
-                        sh "ls -la"
-                        sh "pwd"
-                        sh "pytest tests/"
+                    // Run the Docker container in detached mode
+                    def containerId = sh(script: "docker run -d -w /app ${DOCKER_IMAGE} tail -f /dev/null", returnStdout: true).trim()
+                    
+                    try {
+                        // Run pytest inside the container
+                        sh "docker exec ${containerId} pytest tests/"
+                    } finally {
+                        // Cleanup: Stop and remove the container after the tests
+                        sh "docker stop ${containerId}"
+                        sh "docker rm ${containerId}"
                     }
                 }
             }

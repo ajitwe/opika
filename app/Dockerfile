@@ -25,7 +25,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy the local Scrapy project and Flask API into the container
 COPY . /app
 
-ENV PYTHONPATH=/var/jenkins_home/workspace/image/app
+ENV PYTHONPATH=/app
 
 # Expose the Flask port
 EXPOSE 5000
