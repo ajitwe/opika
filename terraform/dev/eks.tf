@@ -250,17 +250,3 @@ module "ebs_csi_driver_irsa" {
 
 }
 
-# resource "aws_efs_file_system" "efs" {
-#   creation_token = "eks-efs"
-#   tags = {
-#     Name = "eks-efs"
-#   }
-# }
-
-# resource "aws_efs_mount_target" "efs_mount" {
-#   count           = length(module.vpc.private_subnets)
-#   file_system_id  = aws_efs_file_system.efs.id
-#   subnet_id       = module.vpc.private_subnets[count.index]
-#   security_groups = [module.eks.cluster_security_group_id]
-# }
-
