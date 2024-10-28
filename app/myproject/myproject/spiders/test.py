@@ -56,3 +56,20 @@ class QuotesSpider(scrapy.Spider):
         except Exception as e:
             self.logger.error(f"Failed to upload data to S3: {str(e)}")
             raise
+
+import scrapy
+
+class QuotesSpider(scrapy.Spider):
+    name = "myspider"
+
+    def __init__(self, url=None, *args, **kwargs):
+        super(QuotesSpider, self).__init__(*args, **kwargs)
+        self.start_urls = [url] if url else ['http://quotes.toscrape.com']
+
+    def parse(self, response):
+        for quote in response.css('div.quote'):
+            yield {
+                'text': quote.css('span.text::text').get(),
+                'author': quote.css('small.author::text').get(),
+                'tags': quote.css('div.tags a.tag::text').getall(),
+            }
