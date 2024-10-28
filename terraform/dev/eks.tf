@@ -67,7 +67,7 @@ module "eks" {
       use_name_prefix   = false
       enable_monitoring = true
       min_size          = 1
-      max_size          = 3
+      max_size          = 2
       desired_size      = 1
 
       instance_types = ["t3.small"]

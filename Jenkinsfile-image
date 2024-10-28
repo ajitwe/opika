@@ -20,7 +20,7 @@ pipeline {
                     // Change the working directory to 'app'
                     dir('app') {
                         // Build the Docker image
-                        def dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}", "-f Dockerfile .")
+                        def dockerImage = docker.build("${DOCKERHUB_REPO}:${IMAGE_TAG}", "--platform linux/amd64 -f Dockerfile .")
                         // Store the image name in the environment for later use
                         env.DOCKER_IMAGE = "${DOCKERHUB_REPO}:${IMAGE_TAG}"
                     }
