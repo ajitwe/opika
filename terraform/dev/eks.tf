@@ -246,4 +246,50 @@ module "ebs_csi_driver_irsa" {
 }
 
 
+resource "aws_iam_role" "s3_backup_role" {
+  name = "${local.env}_s3_backup_role"
 
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "Federated" : module.eks.oidc_provider_arn
+        },
+        "Action" : "sts:AssumeRoleWithWebIdentity",
+        "Condition" : {
+          "StringEquals" : {
+            "${module.eks.oidc_provider}:sub" : "system:serviceaccount:default:s3-backup"
+          }
+        }
+      }
+    ]
+  })
+
+  managed_policy_arns = [aws_iam_policy.s3_backup_role_policy.arn]
+}
+
+resource "aws_iam_policy" "s3_backup_role_policy" {
+  name = "${local.env}_s3_backup_role_policy"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:*"
+        ],
+        "Resource" : [
+          "*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "db_backup_role_attachment" {
+  role       = aws_iam_role.s3_backup_role.name
+  policy_arn = aws_iam_policy.s3_backup_role_policy.arn
+}

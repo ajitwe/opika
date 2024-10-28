@@ -5,7 +5,6 @@ metadata:
   labels:
     app: opika
 spec:
-  # replicas: 1
   selector:
     matchLabels:
       app: opika
@@ -14,6 +13,7 @@ spec:
       labels:
         app: opika
     spec:
+      serviceAccountName: opika-service-account  # Attach the service account here
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -25,29 +25,28 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: opika
-        image: docker.io/ajitsingh25/opika:latest # Specify the appropriate tag if needed
+        image: docker.io/ajitsingh25/opika:latest
         ports:
-        - containerPort: 5000  # Change this if your app uses a different port
+        - containerPort: 5000
         resources:
           requests:
-            cpu: "100m"  # Request 200 milliCPU
-            memory: "128Mi"  # Request 256 MiB of memory
+            cpu: "100m"
+            memory: "128Mi"
           limits:
-            cpu: "200m"  # Limit to 500 milliCPU
-            memory: "256Mi"  # Limit to 512 MiB of memory
-        # Add readiness and liveness probes
+            cpu: "200m"
+            memory: "256Mi"
         readinessProbe:
           httpGet:
-            path: /health         # The health check path
-            port: 5000            # The port your application listens on
-          initialDelaySeconds: 5  # Delay before starting health checks
-          periodSeconds: 10       # Frequency of health checks
-          failureThreshold: 3     # Number of failed checks before marking as unavailable
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 3
           
         livenessProbe:
           httpGet:
-            path: /health         # The health check path
-            port: 5000            # The port your application listens on
-          initialDelaySeconds: 15 # Delay before starting liveness checks
-          periodSeconds: 20       # Frequency of liveness checks
-          failureThreshold: 3     # Number of failed checks before restarting the container
+            path: /health
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          failureThreshold: 3
