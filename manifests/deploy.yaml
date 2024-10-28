@@ -14,6 +14,15 @@ spec:
       labels:
         app: opika
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: scrapy
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: opika
         image: docker.io/ajitsingh25/opika:latest # Specify the appropriate tag if needed
@@ -21,23 +30,23 @@ spec:
         - containerPort: 5000  # Change this if your app uses a different port
         resources:
           requests:
-            cpu: "500m"  # Request 500 milliCPU
+            cpu: "200m"  # Request 200 milliCPU
             memory: "256Mi"  # Request 256 MiB of memory
           limits:
-            cpu: "1"  # Limit to 1 CPU
+            cpu: "500m"  # Limit to 500 milliCPU
             memory: "512Mi"  # Limit to 512 MiB of memory
         # Add readiness and liveness probes
         readinessProbe:
           httpGet:
-            path: /scrape         # The health check path
+            path: /health         # The health check path
             port: 5000            # The port your application listens on
           initialDelaySeconds: 5  # Delay before starting health checks
-          periodSeconds: 10        # Frequency of health checks
-          failureThreshold: 3      # Number of failed checks before marking as unavailable
+          periodSeconds: 10       # Frequency of health checks
+          failureThreshold: 3     # Number of failed checks before marking as unavailable
           
         livenessProbe:
           httpGet:
-            path: /scrape         # The health check path
+            path: /health         # The health check path
             port: 5000            # The port your application listens on
           initialDelaySeconds: 15 # Delay before starting liveness checks
           periodSeconds: 20       # Frequency of liveness checks

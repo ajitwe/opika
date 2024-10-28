@@ -19,13 +19,13 @@ locals {
   default_security_group_egress        = var.default_security_group_egress
   aws_auth_users                       = []
   aws_auth_roles = [
-    {
-      rolearn  = "arn:aws:iam::768088911524:role/AWSReservedSSO_AdministratorAccess_0dc87b5a7cfc809a"
-      username = "admin"
-      groups   = ["system:masters"]
-    }
+    # {
+    #   rolearn  = "arn:aws:iam::768088911524:role/AWSReservedSSO_AdministratorAccess_0dc87b5a7cfc809a"
+    #   username = "admin"
+    #   groups   = ["system:masters"]
+    # }
   ]
   external-secret-ns      = "external-secrets"
-  external-secret-enabled = true
+  external-secret-enabled = false
   cert-manager-enabled    = false
 }
