@@ -13,7 +13,7 @@ spec:
       labels:
         app: opika
     spec:
-      serviceAccountName: opika-service-account  # Attach the service account here
+      serviceAccountName: s3-backup  # Attach the service account here
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

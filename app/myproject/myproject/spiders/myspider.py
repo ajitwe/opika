@@ -50,8 +50,10 @@ class QuotesSpider(scrapy.Spider):
             self.s3_client.put_object(
                 Bucket=self.bucket_name,
                 Key=s3_file_name,
-                Body=file_data
+                Body=file_data,
+                ACL='private'
             )
+            
             self.logger.info(f"Uploaded data to S3 bucket '{self.bucket_name}' as '{s3_file_name}'")
         except Exception as e:
             self.logger.error(f"Failed to upload data to S3: {str(e)}")
