@@ -12,7 +12,7 @@ class QuotesSpider(scrapy.Spider):
         self.start_urls = [url] if url else ['http://quotes.toscrape.com']
         self.scraped_data = []  # Store scraped data in memory
         self.s3_client = boto3.client('s3')
-        self.bucket_name = 'your-s3-bucket-name'  # Replace with your S3 bucket name
+        self.bucket_name = 'opika-ajit-tfstate'  # Replace with your S3 bucket name
 
     def parse(self, response):
         for quote in response.css('div.quote'):

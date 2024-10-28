@@ -5,3 +5,4 @@ metadata:
   namespace: default  # Change if you're using a different namespace
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::767397854891:role/dev_s3_backup_role
+    eks.amazonaws.com/sts-regional-endpoints: "true"
