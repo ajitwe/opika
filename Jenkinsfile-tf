@@ -30,7 +30,7 @@ pipeline {
                 dir('terraform/dev') {
                     script {
                         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS]]) {
-                            sh 'terraform plan -out=tfplan -parallelism=1'
+                            sh 'terraform plan -out=tfplan'
                         }
                     }
                 }

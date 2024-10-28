@@ -41,12 +41,21 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 script {
-                    // Assuming your manifests are in a 'manifests' directory
-                    def manifestPath = 'manifests/*.yaml' // Adjust as needed
-                    sh "kubectl apply -f ${manifestPath}"
+                    // Directory containing the manifest files
+                    def manifestPath = 'manifests'
+                    // Loop over each YAML file in the manifests directory
+                    dir(manifestPath) {
+                        sh '''
+                        for file in *.yaml; do
+                            echo "Applying $file..."
+                            kubectl apply -f $file
+                        done
+                        '''
+                    }
                 }
             }
         }
+
     }
 
     post {
