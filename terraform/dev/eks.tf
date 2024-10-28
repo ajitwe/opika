@@ -66,11 +66,11 @@ module "eks" {
       name              = "${local.cluster_name}-infra-ng"
       use_name_prefix   = false
       enable_monitoring = true
-      min_size          = 2
-      max_size          = 4
-      desired_size      = 2
+      min_size          = 1
+      max_size          = 3
+      desired_size      = 1
 
-      instance_types = ["t3.micro"]
+      instance_types = ["t3.small"]
       capacity_type  = "ON_DEMAND"
       update_config  = { max_unavailable = 1 }
 
