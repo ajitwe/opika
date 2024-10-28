@@ -45,13 +45,17 @@ class QuotesSpider(scrapy.Spider):
         try:
             # Create a unique S3 object name using the spider name and timestamp
             s3_file_name = f"scraped_data/{self.name}-quotes.csv"
-            
+
+            s3_client = boto3.client('s3')
+            if object_name is None:
+                object_name = os.path.basename(s3_file_name)
+            s3_client.upload_file(s3_file_name, self.bucket_name, object_name)
             # Upload the CSV data to the S3 bucket
-            self.s3_client.put_object(
-                Bucket=self.bucket_name,
-                Key=s3_file_name,
-                Body=file_data
-            )
+            # self.s3_client.put_object(
+            #     Bucket=self.bucket_name,
+            #     Key=s3_file_name,
+            #     Body=file_data
+            # )
             
             self.logger.info(f"Uploaded data to S3 bucket '{self.bucket_name}' as '{s3_file_name}'")
         except Exception as e:
