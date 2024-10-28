@@ -30,11 +30,11 @@ spec:
         - containerPort: 5000  # Change this if your app uses a different port
         resources:
           requests:
-            cpu: "200m"  # Request 200 milliCPU
-            memory: "256Mi"  # Request 256 MiB of memory
+            cpu: "100m"  # Request 200 milliCPU
+            memory: "128Mi"  # Request 256 MiB of memory
           limits:
-            cpu: "500m"  # Limit to 500 milliCPU
-            memory: "512Mi"  # Limit to 512 MiB of memory
+            cpu: "200m"  # Limit to 500 milliCPU
+            memory: "256Mi"  # Limit to 512 MiB of memory
         # Add readiness and liveness probes
         readinessProbe:
           httpGet:
